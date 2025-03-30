@@ -1,0 +1,502 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Species Classifier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding-top: 20px;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .iris-image {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            display: block;
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Iris Species Classifier</h1>
+            <p class="lead">Enter the measurements of your iris flower to predict its species</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <img src="https://s3.amazonaws.com/assets.datacamp.com/blog_assets/Machine+Learning+R/iris-machinelearning.png" alt="Iris Species" class="iris-image">
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-container">
+                    <form action="/predict" method="post">
+                        <div class="mb-3">
+                            <label for="sepal_length" class="form-label">Sepal Length (cm):</label>
+                            <input type="number" class="form-control" id="sepal_length" name="sepal_length" step="0.1" min="0" max="10" required placeholder="e.g., 5.1">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sepal_width" class="form-label">Sepal Width (cm):</label>
+                            <input type="number" class="form-control" id="sepal_width" name="sepal_width" step="0.1" min="0" max="10" required placeholder="e.g., 3.5">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="petal_length" class="form-label">Petal Length (cm):</label>
+                            <input type="number" class="form-control" id="petal_length" name="petal_length" step="0.1" min="0" max="10" required placeholder="e.g., 1.4">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="petal_width" class="form-label">Petal Width (cm):</label>
+                            <input type="number" class="form-control" id="petal_width" name="petal_width" step="0.1" min="0" max="10" required placeholder="e.g., 0.2">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Predict Species</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-center">
+                    <a href="/dataset" class="btn btn-outline-info me-2">View Dataset Info</a>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#apiModal">
+                        API Documentation
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Documentation Modal -->
+        <div class="modal fade" id="apiModal" tabindex="-1" aria-labelledby="apiModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="apiModalLabel">API Documentation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Endpoint: /api/predict (POST)</h6>
+                        <p>This endpoint accepts a JSON payload with the flower's measurements and returns the predicted species.</p>
+                        
+                        <h6>Example Request:</h6>
+                        <pre>
+curl -X POST "http://localhost:5000/api/predict" \
+     -H "Content-Type: application/json" \
+     -d '{
+        "sepal_length": 5.1,
+        "sepal_width": 3.5,
+        "petal_length": 1.4,
+        "petal_width": 0.2
+     }'</pre>
+                        
+                        <h6>Example Response:</h6>
+                        <pre>
+{
+    "prediction": "Setosa",
+    "probabilities": {
+        "Setosa": "0.9800",
+        "Versicolor": "0.0100",
+        "Virginica": "0.0100"
+    },
+    "input_data": {
+        "sepal_length": 5.1,
+        "sepal_width": 3.5,
+        "petal_length": 1.4,
+        "petal_width": 0.2
+    }
+}
+</pre>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>Iris Species Classifier | KNN Machine Learning Model | &copy; 2025</p>
+        </footer>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<!-- templates/result.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result - Iris Species Classifier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding-top: 20px;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .result-box {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #0d6efd;
+        }
+        .species-image {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 5px;
+        }
+        .probability-bar {
+            height: 30px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Prediction Result</h1>
+            <p class="lead">Iris Species Classification</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="result-box">
+                    <h3 class="text-center mb-4">Predicted Species:</h3>
+                    <h2 class="text-center text-primary">{{ prediction }}</h2>
+                    
+                    {% if prediction == "Setosa" %}
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/Irissetosa1.jpg" alt="Iris Setosa" class="species-image mt-3">
+                    {% elif prediction == "Versicolor" %}
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/27/Blue_Flag.jpg" alt="Iris Versicolor" class="species-image mt-3">
+                    {% else %}
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg" alt="Iris Virginica" class="species-image mt-3">
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="result-box">
+                    <h4>Input Features:</h4>
+                    <table class="table table-sm">
+                        <tr>
+                            <td>Sepal Length:</td>
+                            <td>{{ sepal_length }} cm</td>
+                        </tr>
+                        <tr>
+                            <td>Sepal Width:</td>
+                            <td>{{ sepal_width }} cm</td>
+                        </tr>
+                        <tr>
+                            <td>Petal Length:</td>
+                            <td>{{ petal_length }} cm</td>
+                        </tr>
+                        <tr>
+                            <td>Petal Width:</td>
+                            <td>{{ petal_width }} cm</td>
+                        </tr>
+                    </table>
+                    
+                    <h4 class="mt-4">Probability Distribution:</h4>
+                    <p><strong>Setosa:</strong></p>
+                    <div class="progress probability-bar">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ setosa_prob }};" aria-valuenow="{{ setosa_prob }}" aria-valuemin="0" aria-valuemax="100">{{ setosa_prob }}</div>
+                    </div>
+                    
+                    <p><strong>Versicolor:</strong></p>
+                    <div class="progress probability-bar">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ versicolor_prob }};" aria-valuenow="{{ versicolor_prob }}" aria-valuemin="0" aria-valuemax="100">{{ versicolor_prob }}</div>
+                    </div>
+                    
+                    <p><strong>Virginica:</strong></p>
+                    <div class="progress probability-bar">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ virginica_prob }};" aria-valuenow="{{ virginica_prob }}" aria-valuemin="0" aria-valuemax="100">{{ virginica_prob }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12 text-center mt-4">
+                <a href="/" class="btn btn-primary">Make Another Prediction</a>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>Iris Species Classifier | KNN Machine Learning Model | &copy; 2025</p>
+        </footer>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<!-- templates/dataset.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Information - Iris Species Classifier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding-top: 20px;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Iris Dataset Information</h1>
+            <p class="lead">Statistical information about the training dataset</p>
+        </div>
+        
+        <div class="info-box">
+            <h4>Dataset Overview</h4>
+            <p>The Iris dataset is one of the most famous datasets in pattern recognition literature. It contains measurements for 150 iris flowers from three different species: Setosa, Versicolor, and Virginica.</p>
+            <p><strong>Number of samples in training set:</strong> {{ stats.num_samples }}</p>
+        </div>
+        
+        <div class="info-box">
+            <h4>Features</h4>
+            <p>Each sample in the dataset has the following features:</p>
+            <ul>
+                {% for feature in stats.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h4>Feature Statistics</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Min</th>
+                        <th>Max</th>
+                        <th>Mean</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sepal Length</td>
+                        <td>{{ stats.feature_stats.sepal_length.min }} cm</td>
+                        <td>{{ stats.feature_stats.sepal_length.max }} cm</td>
+                        <td>{{ "%.2f"|format(stats.feature_stats.sepal_length.mean) }} cm</td>
+                    </tr>
+                    <tr>
+                        <td>Sepal Width</td>
+                        <td>{{ stats.feature_stats.sepal_width.min }} cm</td>
+                        <td>{{ stats.feature_stats.sepal_width.max }} cm</td>
+                        <td>{{ "%.2f"|format(stats.feature_stats.sepal_width.mean) }} cm</td>
+                    </tr>
+                    <tr>
+                        <td>Petal Length</td>
+                        <td>{{ stats.feature_stats.petal_length.min }} cm</td>
+                        <td>{{ stats.feature_stats.petal_length.max }} cm</td>
+                        <td>{{ "%.2f"|format(stats.feature_stats.petal_length.mean) }} cm</td>
+                    </tr>
+                    <tr>
+                        <td>Petal Width</td>
+                        <td>{{ stats.feature_stats.petal_width.min }} cm</td>
+                        <td>{{ stats.feature_stats.petal_width.max }} cm</td>
+                        <td>{{ "%.2f"|format(stats.feature_stats.petal_width.mean) }} cm</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="info-box">
+            <h4>Species</h4>
+            <p>The dataset contains samples from three iris species:</p>
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <div class="card mb-3">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/Irissetosa1.jpg" class="card-img-top" alt="Iris Setosa">
+                        <div class="card-body">
+                            <h5 class="card-title">Setosa</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="card mb-3">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/27/Blue_Flag.jpg" class="card-img-top" alt="Iris Versicolor">
+                        <div class="card-body">
+                            <h5 class="card-title">Versicolor</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="card mb-3">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg" class="card-img-top" alt="Iris Virginica">
+                        <div class="card-body">
+                            <h5 class="card-title">Virginica</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h4>Model Information</h4>
+            <p>This application uses a K-Nearest Neighbors (KNN) classifier with the following parameters:</p>
+            <ul>
+                <li><strong>Algorithm:</strong> K-Nearest Neighbors</li>
+                <li><strong>Number of neighbors (k):</strong> 3</li>
+                <li><strong>Test set size:</strong> 20% of the dataset</li>
+            </ul>
+        </div>
+        
+        <div class="row">
+            <div class="col-12 text-center mt-4">
+                <a href="/" class="btn btn-primary">Back to Classifier</a>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>Iris Species Classifier | KNN Machine Learning Model | &copy; 2025</p>
+        </footer>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<!-- templates/error.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Iris Species Classifier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding-top: 20px;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .error-box {
+            background-color: #f8d7da;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #dc3545;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Error</h1>
+            <p class="lead">Something went wrong</p>
+        </div>
+        
+        <div class="error-box">
+            <h4>Error Details:</h4>
+            <p>{{ error }}</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-12 text-center mt-4">
+                <a href="/" class="btn btn-primary">Back to Home</a>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>Iris Species Classifier | KNN Machine Learning Model | &copy; 2025</p>
+        </footer>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
